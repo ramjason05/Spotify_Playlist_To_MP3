@@ -3,9 +3,10 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import os
 import re
 import yt_dlp
-
-CLIENT_ID = 'a0d449a16f3648dda1043b45fd64030f'
-CLIENT_SECRET = '277d6b395a2047d0a7b3af2aa29af913'
+from dotenv import load_dotenv
+load_dotenv()
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REDIRECT_URI = 'http://127.0.0.1:8080/callback'
 
 DESKTOP_PATH = os.pathfinder.expanduser("-/Desktop")
