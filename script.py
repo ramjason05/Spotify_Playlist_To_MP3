@@ -10,7 +10,7 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REDIRECT_URI = 'http://localhost:8888/callback'
 
-DESKTOP_PATH = os.path.expanduser("-/Desktop")
+DESKTOP_PATH = os.path.expanduser("~/Desktop")
 
 
 def clean_file(name:str) -> str:
@@ -43,13 +43,15 @@ def get_tracks(url: str) -> list[dict]:
             title = track["name"]
             artist = track["artists"][0]["name"]
             tracks.append({"title":title,"artist":artist})
+
+        results = sp.next(results) if results["next"] else None
     
     return tracks
 
 def progress_hook(d):
     if d["status"] == "downloading":
-        print(f" Downloading... {d.get('_percent_str', '').strip()}"end="\r")
-    elif d["status"] ==" finished":
+        print(f" Downloading... {d.get('_percent_str', '').strip()}",end="\r")
+    elif d["status"] =="finished":
         print(f" Download complete, converting to mp3")
 
 
@@ -72,10 +74,12 @@ def download_as_mp3(search_query:str, output_dir:str, file:str) -> bool:
         "default_search": "ytsearch1", # Only grabs the first result, should change possibly
         "quiet": True,
         "no_warnings": True,
-        "progress_hooks": [progress_hook]
+        "progress_hooks": [progress_hook],
     }
+    print(f" Searching Youtube for {search_query}")
     try: 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            print(f" Starting download...")
             ydl.download([search_query])
         return True
     except Exception as e:
@@ -102,7 +106,7 @@ def main():
 
    for i, track in enumerate(tracks, start=1):
        title = track["title"]
-       artist = track["artists"]
+       artist = track["artist"]
        print(f"[{i}/{len(tracks)}] {artist} - {title}")
        query = search_query(title, artist)
        filename = clean_file(f"{artist} - {title}")
@@ -114,8 +118,8 @@ def main():
            success += 1
        else:
            fails += 1
-       print(f"\n Done! {success} downloaded, and {fails} failed")
-       print(f"Files are in: {output_folder}")
+   print(f"\n Done! {success} downloaded, and {fails} failed")
+   print(f"Files are in: {output_folder}")
 
 
 if __name__ == "__main__":
