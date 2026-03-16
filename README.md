@@ -2,6 +2,8 @@ This is a spotify playlist URL converter to MP3 using yu_dlp youtube parser and 
 This would be using Spotipy to link to your spotify ID and Secret which you should create a ".env" file like my example file has,
 to link your specific IDs, which you can find at https://developer.spotify.com/
 
+
+
 The Steps to Use the Downloader:
   1.Copy SSH and copy github repository
   2.Create your own virtual environment in your terminal: -python3 -m venv venv
