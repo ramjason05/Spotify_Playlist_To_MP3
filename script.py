@@ -81,9 +81,28 @@ def main():
    #Creating folder on desktop named after the playlist ID
    playlist_id = U_P.split("/playlist/")[1].split("?")[0][:8]
    output_folder = os.path.join(DESKTOP_PATH, f"Playlist_{playlist_id}")
-   os.makedirs(output_folder, exist_ok=True) #Creating folder
+   os.makedirs(output_folder, exist_ok=True) #Creating folder / exist_ok = its okay if file alr exists, still make it
+   print(f"Created {output_folder} on your desktop\n")
 
-   
+   success = 0
+   fails = 0
+
+   for i, track in enumerate(tracks, start=1):
+       title = track["title"]
+       artist = track["artists"]
+       print(f"[{i}/{len(tracks)}] {artist} - {title}")
+       query = search_query(title, artist)
+       filename = clean_file(f"{artist} - {title}")
+
+       ok = download_as_mp3(query, output_folder, filename)
+
+       if ok:
+           print(f" Saved as {filename}.mp3")
+           success += 1
+       else:
+           fails += 1
+       print(f"\n Done! {success} downloaded, and {fails} failed")
+       print(f"Files are in: {output_folder}")
 
 
 if __name__ == "__main__":
