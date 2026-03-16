@@ -5,11 +5,12 @@ import re
 import yt_dlp
 from dotenv import load_dotenv
 load_dotenv()
+
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-REDIRECT_URI = 'http://127.0.0.1:8080/callback'
+REDIRECT_URI = 'http://localhost:8888/callback'
 
-DESKTOP_PATH = os.pathfinder.expanduser("-/Desktop")
+DESKTOP_PATH = os.path.expanduser("-/Desktop")
 
 
 def clean_file(name:str) -> str:
@@ -23,11 +24,15 @@ def get_tracks(url: str) -> list[dict]:
         client_id = CLIENT_ID,
         client_secret = CLIENT_SECRET,
     )
-    sp = spotipy.Spotipy(auth_manager = auth_manager)
-
-    playlist_id = url.split("/playlist")[1].split("?")[0] #splits url from url -> readable playlist ID
+    sp = spotipy.Spotify(auth_manager = auth_manager)
+    match = re.search(r'playlist/([A-Za-z0-9]+)', url)
+    if not match:
+        print("Could not parse ID")
+        return []
+    playlist_id = match.group(1) #splits url from url -> readable playlist ID
     #Example: https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M?si=abc123xyz. --> 37i9dQZF1DXcBWIGoYBM5M
     #Uses splitting techniques
+    print(f" Extracted ID: {playlist_id}")
     tracks = []
     results = sp.playlist_tracks(playlist_id)
     while results:
@@ -40,6 +45,12 @@ def get_tracks(url: str) -> list[dict]:
             tracks.append({"title":title,"artist":artist})
     
     return tracks
+
+def progress_hook(d):
+    if d["status"] == "downloading":
+        print(f" Downloading... {d.get('_percent_str', '').strip()}"end="\r")
+    elif d["status"] ==" finished":
+        print(f" Download complete, converting to mp3")
 
 
 def search_query(title:str, artist:str) -> str:
@@ -61,6 +72,7 @@ def download_as_mp3(search_query:str, output_dir:str, file:str) -> bool:
         "default_search": "ytsearch1", # Only grabs the first result, should change possibly
         "quiet": True,
         "no_warnings": True,
+        "progress_hooks": [progress_hook]
     }
     try: 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
